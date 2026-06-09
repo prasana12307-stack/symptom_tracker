@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Health Symptom Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: #0077ff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #005fcc;
+        }
+
+        .history {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Health Symptom Tracker</h1>
+
+<h3>Select Symptoms</h3>
+
+<label><input type="checkbox" value="Fever"> Fever</label><br>
+<label><input type="checkbox" value="Cold"> Cold</label><br>
+<label><input type="checkbox" value="Cough"> Cough</label><br>
+<label><input type="checkbox" value="Headache"> Headache</label><br>
+<label><input type="checkbox" value="Body Pain"> Body Pain</label><br>
+
+<br>
+
+<label>
+    Severity:
+    <input type="range" id="severity" min="1" max="10" value="5">
+    <span id="severityValue">5</span>/10
+</label>
+
+<br><br>
+
+<button onclick="saveEntry()">Save Entry</button>
+
+<div class="history">
+    <h2>Symptom History</h2>
+    <div id="entries"></div>
+</div>
+
+<script>
+
+const severitySlider = document.getElementById("severity");
+const severityValue = document.getElementById("severityValue");
+
+severitySlider.addEventListener("input", () => {
+    severityValue.textContent = severitySlider.value;
+});
+
+function saveEntry() {
+    const checkedSymptoms = [
+        ...document.querySelectorAll('input[type="checkbox"]:checked')
+    ].map(item => item.value);
+
+    if (checkedSymptoms.length === 0) {
+        alert("Please select at least one symptom.");
+        return;
+    }
+
+    const entry = {
+        date: new Date().toLocaleString(),
+        symptoms: checkedSymptoms,
+        severity: severitySlider.value
+    };
+
+    let history = JSON.parse(localStorage.getItem("symptomHistory")) || [];
+
+    history.push(entry);
+
+    localStorage.setItem(
+        "symptomHistory",
+        JSON.stringify(history)
+    );
+
+    loadHistory();
+
+    document
+        .querySelectorAll('input[type="checkbox"]')
+        .forEach(box => box.checked = false);
+}
+
+function loadHistory() {
+    const history =
+        JSON.parse(localStorage.getItem("symptomHistory")) || [];
+
+    const entriesDiv = document.getElementById("entries");
+
+    entriesDiv.innerHTML = "";
+
+    history.reverse().forEach(entry => {
+        entriesDiv.innerHTML += `
+            <div class="card">
+                <strong>Date:</strong> ${entry.date}<br>
+                <strong>Symptoms:</strong> ${entry.symptoms.join(", ")}<br>
+                <strong>Severity:</strong> ${entry.severity}/10
+            </div>
+        `;
+    });
+}
+
+loadHistory();
+
+</script>
+
+</body>
+</html>
+
